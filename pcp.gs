@@ -1,5 +1,6 @@
 function pcp() {
-  const WEBHOOK = "https://openapi.seatalk.io/webhook/group/IrcUB8eVRq2N2E1hSvdpQw";
+  const WEBHOOK = PropertiesService.getScriptProperties().getProperty('SEATALK_WEBHOOK');
+  
   const SS = SpreadsheetApp.getActiveSpreadsheet();
 
   const dia = new Date(); 
@@ -26,7 +27,6 @@ function pcp() {
   let adOp = aba.getRange("N7").getDisplayValue();  
   let adDia =  aba.getRange("P7").getDisplayValue();
   let msg = `📋 *Planejamento do Quadro Operacional – ${pag} | ${dataFormatada}*\n\n`;
-  //let msg2 = "TESTE";
 
   msg += `🔹 👥 *Planejado x Real*\n`;
   msg += `HC Fixo Planejado: ${hcPlanejado}\n`;
@@ -49,15 +49,18 @@ function pcp() {
     msg = "Erro na Base";
   }
 
-  //enviar_seatalk(WEBHOOK, msg2);
   enviar_seatalk(WEBHOOK, msg);
 
   console.log(msg);
-  }
-
-
+}
 
 function enviar_seatalk(url, conteudo) {
+  // Segurança extra: se você errar o nome da propriedade, o script avisa em vez de quebrar bruto
+  if (!url) {
+    Logger.log("Erro: A propriedade 'SEATALK_WEBHOOK' não foi encontrada nas configurações.");
+    return;
+  }
+
   const response = UrlFetchApp.fetch(url, {
     method: "post",
     contentType: "application/json",
